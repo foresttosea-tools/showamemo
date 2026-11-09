@@ -1,0 +1,13 @@
+{
+  "name": "救助訓練 記録票（昭和村実証）",
+  "short_name": "救助訓練記録",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f1",
+  "theme_color": "#4e7d2b",
+  "icons": [
+    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

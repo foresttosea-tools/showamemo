@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="救助訓練記録">
+<meta name="theme-color" content="#4e7d2b">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>救助訓練記録票</title>
+<style>
+:root{
+  --g:#4e7d2b; --g2:#6a9e3f; --gl:#eef5e6; --line:#8bb35f;
+  --ink:#1d2416; --sub:#5b6652; --bg:#f4f6f1; --card:#fff;
+  --ok:#2f7d32; --ng:#c62828; --auto:#7a6a00;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",sans-serif;font-size:16px;line-height:1.5}
+button{font:inherit;color:inherit}
+#app{max-width:760px;margin:0 auto;padding:0 12px calc(90px + env(safe-area-inset-bottom))}
+header.top{position:sticky;top:0;z-index:10;background:var(--g);color:#fff;margin:0 -12px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;display:flex;align-items:center;gap:8px}
+header.top h1{font-size:16px;margin:0;flex:1;line-height:1.3}
+header.top .back{background:rgba(255,255,255,.18);border:0;border-radius:8px;padding:6px 10px;color:#fff;font-size:14px}
+#saved{font-size:11px;opacity:.85;white-space:nowrap}
+h2{font-size:15px;margin:22px 0 8px;padding-left:8px;border-left:4px solid var(--g)}
+.note{font-size:12px;color:var(--sub);margin:4px 0 8px}
+.card{background:var(--card);border:1px solid #dde5d3;border-radius:12px;padding:12px;margin:8px 0}
+.card.dis{opacity:.35;pointer-events:none}
+.ch{font-weight:700;font-size:15px;margin-bottom:6px;display:flex;gap:8px;align-items:baseline}
+.ch .no{display:inline-block;min-width:26px;padding:0 6px;border-radius:6px;background:var(--gl);color:var(--g);font-size:13px;text-align:center}
+.ch .done{margin-left:auto;font-size:12px;color:var(--ok);font-weight:600}
+.f{display:flex;align-items:center;gap:8px;margin:6px 0;flex-wrap:wrap}
+.f>label{font-size:12px;color:var(--sub);min-width:64px}
+.f .val{font-size:14px}
+input.tx,textarea,input.num{font:inherit;font-size:16px;border:1px solid #c9d4bd;border-radius:8px;padding:8px 10px;background:#fff;color:var(--ink);flex:1;min-width:0;width:100%}
+input.num{width:90px;flex:0 0 90px}
+textarea{min-height:84px;resize:vertical}
+.tm{display:flex;gap:6px;align-items:center}
+.tm input{font:inherit;font-size:17px;border:1px solid #c9d4bd;border-radius:8px;padding:6px 8px;background:#fff;color:var(--ink);width:128px;min-height:40px;-webkit-appearance:none;appearance:none;text-align:center}
+.tm input.auto{color:var(--auto);border-style:dashed;background:#fffbe8}
+.tm .now{border:0;background:var(--g);color:#fff;border-radius:8px;padding:8px 12px;font-size:14px;font-weight:700}
+.tm .clr{border:0;background:#e7ebe2;border-radius:8px;padding:8px 10px;font-size:13px;color:var(--sub)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{border:1.5px solid #c9d4bd;background:#fff;border-radius:999px;padding:7px 14px;font-size:14px;min-height:38px}
+.chips button[aria-pressed=true]{background:var(--g);border-color:var(--g);color:#fff;font-weight:700}
+.chips.ox button{width:56px;font-size:20px;font-weight:700;padding:4px 0}
+.chips.ox button[data-v="○"][aria-pressed=true]{background:var(--ok);border-color:var(--ok)}
+.chips.ox button[data-v="×"][aria-pressed=true]{background:var(--ng);border-color:var(--ng)}
+.chips.rt button{width:44px;padding:6px 0}
+.calc{font-weight:700;color:var(--g);font-size:15px}
+.st{font-size:14px}
+.comm{display:grid;grid-template-columns:1fr;gap:6px}
+.crow{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #dde5d3;border-radius:10px;padding:6px 8px}
+.crow.dis{opacity:.3;pointer-events:none}
+.crow .n{width:28px;text-align:center;font-weight:700;color:var(--g)}
+.crow input.tx{padding:6px 8px;font-size:15px}
+.list a{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;background:#fff;border:1px solid #dde5d3;border-radius:12px;padding:12px;margin:8px 0}
+.list .no{width:30px;height:30px;border-radius:8px;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex:0 0 30px}
+.list .t{flex:1;font-size:15px;font-weight:600;line-height:1.35}
+.list .t small{display:block;font-weight:400;color:var(--sub);font-size:12px}
+.bar{height:6px;width:60px;background:#e2e8db;border-radius:3px;overflow:hidden;flex:0 0 60px}
+.bar i{display:block;height:100%;background:var(--g2)}
+.cover{background:#fff;border-radius:12px;padding:14px;margin-top:12px;border:1px solid #dde5d3}
+.cover .pj{font-size:12px;color:var(--sub)}
+.cover .ttl{font-size:20px;font-weight:800;margin:2px 0 6px}
+.cover .meta{font-size:13px;color:var(--sub)}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.btn{border:0;border-radius:10px;padding:12px 10px;font-size:14px;font-weight:700;background:var(--g);color:#fff}
+.btn.sub{background:#fff;color:var(--g);border:1.5px solid var(--g)}
+.btn.warn{background:#fff;color:var(--ng);border:1.5px solid var(--ng)}
+.btn.wide{grid-column:1/-1}
+details{background:#fff;border:1px solid #dde5d3;border-radius:12px;padding:10px 12px;margin:10px 0}
+details summary{font-weight:700;font-size:14px}
+details table{border-collapse:collapse;font-size:13px;margin-top:8px;width:100%}
+details td{border-top:1px solid #e3e9dc;padding:6px 4px;vertical-align:top}
+details td:first-child{white-space:nowrap;font-weight:600;padding-right:10px}
+nav.pager{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);border-top:1px solid #dde5d3;padding:8px 12px calc(8px + env(safe-area-inset-bottom));display:flex;gap:8px;z-index:10}
+nav.pager button{flex:1;border:1.5px solid var(--g);background:#fff;color:var(--g);border-radius:10px;padding:10px 6px;font-size:14px;font-weight:700}
+nav.pager button.mid{background:var(--g);color:#fff}
+nav.pager button:disabled{opacity:.3}
+.irr .card{position:relative}
+.irr .del{position:absolute;top:8px;right:8px;border:0;background:#f3e4e4;color:var(--ng);border-radius:8px;padding:4px 10px;font-size:12px}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#263020;color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:30}
+.toast.on{opacity:1}
+#print{display:none}
+
+/* ===== 印刷（紙の記録票レイアウト） ===== */
+@page{size:A4 portrait;margin:12mm 12mm 14mm}
+@media print{
+  body{background:#fff}
+  #app,nav.pager,.toast{display:none!important}
+  #print{display:block}
+}
+.pp{font-size:10pt;color:#222;line-height:1.45}
+.pp .page{page-break-after:always;break-after:page}
+.pp .page:last-child{page-break-after:auto;break-after:auto}
+.pp h1{font-size:15pt;margin:0 0 4px;padding-bottom:4px;border-bottom:1.5pt solid #222}
+.pp h3{font-size:11pt;margin:12px 0 4px}
+.pp .mline{font-size:9.5pt;color:#444;margin:4px 0 8px}
+.pp .mline span{margin-right:16px}
+.pp table{width:100%;border-collapse:collapse;margin:4px 0;page-break-inside:auto}
+.pp tr{page-break-inside:avoid;break-inside:avoid}
+.pp th{white-space:nowrap;background:#e3e3e3;font-size:8.5pt;font-weight:700;border:0.75pt solid #7bab4c;padding:4px 3px}
+.pp td{border:0.75pt solid #7bab4c;padding:4px 5px;font-size:9pt;vertical-align:middle}
+.pp td.c{text-align:center;white-space:nowrap}
+.pp td.k{background:#f1f1f1;font-weight:700;font-size:8.5pt;width:27%}
+.pp td.ta{height:52pt;vertical-align:top;white-space:pre-wrap}
+.pp .v{font-weight:700;color:#0d3d8a}
+.pp .ok{color:#1b6b1e;font-weight:700}
+.pp .ng{color:#b71c1c;font-weight:700}
+.pp .sm{font-size:8pt;color:#666}
+.pp .slash{background:repeating-linear-gradient(135deg,transparent 0 6px,#bbb 6px 7px)}
+.pp .cv{text-align:center;margin:30px 0 18px}
+.pp .cv .pj{font-size:11pt}
+.pp .cv .t{font-size:20pt;font-weight:800;margin:6px 0 10px}
+.pp .cv div{margin:3px 0;font-size:10pt}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<nav class="pager" id="pager" hidden></nav>
+<div class="toast" id="toast"></div>
+<div id="print" class="pp"></div>
+<input type="file" id="importFile" accept="application/json,.json" hidden>
+
+<script>
+'use strict';
+/* =========================================================
+   データ保存
+   ========================================================= */
+const KEY = 'reach-showa-rescue-20261111-v1';
+let D = {};
+try { D = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { D = {}; }
+function persist() {
+  D._updated = new Date().toISOString();
+  try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) { toast('保存に失敗しました（容量 or プライベートモード）'); }
+  const s = document.getElementById('saved');
+  if (s) s.textContent = '保存済 ' + hm(new Date());
+}
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hm = d => String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('on'),1800);}
+
+/* =========================================================
+   部品（セル仕様）
+   ========================================================= */
+const S = v => ({t:'s', v});
+const DASH = {t:'dash'};
+const BLANK = {t:'blank'};
+const T = (k, fb) => ({t:'time', k, fb});
+const C = (k, o, cls) => ({t:'c', k, o, cls});
+const OX = k => C(k, ['○','×'], 'ox');
+const RT = k => ({t:'c', k, o:['0','1','2','3'], cls:'rt', suf:'回'});
+const DONE = k => C(k, ['済']);
+const OKNG = k => C(k, ['可','不可']);
+const TX = (k, ph) => ({t:'tx', k, ph});
+const TA = k => ({t:'ta', k});
+const N = (k, ph) => ({t:'num', k, ph});
+const CALC = id => ({t:'calc', id});
+const CNT = ['各20回','各10回'];
+
+/* 値の取得（フォールバック付き時刻にも対応） */
+function val(k){ return D[k] ?? ''; }
+function timeVal(spec){ if (val(spec.k)) return val(spec.k); if (spec.fb) return val(spec.fb); return ''; }
+function mins(a,b){ if(!a||!b) return ''; const [h1,m1]=a.split(':').map(Number),[h2,m2]=b.split(':').map(Number); let d=(h2*60+m2)-(h1*60+m1); if(d<0) d+=1440; return d; }
+
+/* =========================================================
+   記録票の定義
+   ========================================================= */
+const PLAN = [
+  ['1','昭和村役場集合・挨拶','09:30〜09:45','事前集合 09:15頃'],
+  ['2','見沢へ移動、事前説明、機器状態・役割確認、仮想事務所設置','09:45〜10:15',''],
+  ['3','見沢：熊出没・熊被害シナリオ','10:15〜10:40',''],
+  ['4','見沢：簡易振り返り','10:40〜10:45',''],
+  ['5','見沢：通信試験','10:45〜11:15','cnt.miza'],
+  ['6','機器撤収・車両積載、移動','11:15〜11:25',''],
+  ['7','KCCS 陸上 Wi-Fi 拠点視察','11:25〜11:35',''],
+  ['8','猫沢へ移動・昼食','11:35〜12:45',''],
+  ['9','猫沢：事前説明、機器状態・役割確認、仮想事務所設置','12:45〜13:00',''],
+  ['10','猫沢：滑落事故・ドローンシナリオ','13:30〜14:00',''],
+  ['11','猫沢：簡易振り返り','14:00〜14:05',''],
+  ['12','猫沢：通信試験','14:05〜14:35','cnt.neko'],
+  ['13','全体振り返り・撤収','14:35〜14:50',''],
+  ['14','役場へ移動・総括・解散','14:50〜16:00',''],
+  ['—','親機設置状況の視察（総括後）','未定','工程表記載なし'],
+];
+function sheet1(){
+  return {
+    id:1, title:'当日全体工程　時刻記録表', ref:'工程 1〜14、親機視察',
+    blocks:[{type:'table', head:[0,1], cols:['工程','内容','予定','実績開始','実績終了','備考'],
+      rows: PLAN.map(([n,c,p,note],i)=>{
+        let rem;
+        if (note.startsWith('cnt.')) rem = [C(note, CNT), TX(`s1.r${i}.memo`,'メモ')];
+        else rem = note ? [S(note), TX(`s1.r${i}.memo`,'メモ')] : [TX(`s1.r${i}.memo`,'メモ')];
+        return [S(n),S(c),S(p),T(`s1.r${i}.st`),T(`s1.r${i}.en`),rem];
+      }),
+      foot:'※順調な場合は工程を前倒しで進める（台本 工程 1 で案内済み）。13:00〜13:30 は計画書 v1.1 の工程表に記載なし'}]
+  };
+}
+const CHK2 = [
+  ['Starlink mini 設置・接続','d'],
+  ['GeoServer 操作用 PC 設置・画面表示','d'],
+  ['GeoChat①（要救助者役用）電源・ペアリング','d'],
+  ['GeoChat①　電池残量','b'],
+  ['GeoChat②（別班・救援班役用）電源・ペアリング','d'],
+  ['GeoChat②　電池残量','b'],
+  ['役割確認（要救助者役・仮想事務所・救援班役・記録）','d'],
+  ['進め方ルール・安全事項の説明','d'],
+  ['捜索時の移動についての説明','d'],
+  ['ドローン離着陸地点・飛行経路の確認（猫沢のみ）','n'],
+];
+const ROLES = ['要救助者役','仮想事務所（GeoServer 主操作）','操作補助（FS）','別班・救援班役（FS）','GeoChat 操作者（通信試験）','ドローン操縦'];
+function sheet2(){
+  return {
+    id:2, title:'事前確認チェック表（見沢・猫沢）', ref:'工程 2、工程 9',
+    blocks:[
+      {type:'table', head:[0], cols:['確認項目','見沢 確認','時刻','猫沢 確認','時刻'],
+        rows: CHK2.map(([t,kind],i)=>{
+          const m=`s2.r${i}.m`, n=`s2.r${i}.n`;
+          if(kind==='b') return [S(t),OKNG(m),BLANK,OKNG(n),BLANK];
+          if(kind==='n') return [S(t),DASH,DASH,DONE(n),T(n+'t')];
+          return [S(t),DONE(m),T(m+'t'),DONE(n),T(n+'t')];
+        })},
+      {type:'table', title:'担当者（当日記入）', head:[0], cols:['役割','見沢','猫沢'],
+        rows: ROLES.map((r,i)=>[S(r), i===5?DASH:TX(`s2.role${i}.m`), TX(`s2.role${i}.n`)])}
+    ]
+  };
+}
+const Q8 = ['1. 意識はありますか','2. 正常に呼吸できますか','3. 出血していますか','4. 骨折の疑いがありますか','5. 自力で歩けますか','6. 周囲に危険がありますか','7. その場で安全に待機できますか','8. 救助者から見える目印がありますか'];
+function scenarioTable(p, items){
+  return {type:'table', head:[0,1], cols:['No.','評価項目','送信時刻','受信時刻','結果（○ or ×）','再送','備考'],
+    rows: items.map(([t,s,r],i)=>{
+      const b=`${p}.r${i+1}`;
+      return [S(String(i+1)),S(t), s?T(b+'.send'):DASH, r?T(b+'.recv'):DASH, OX(b+'.res'), RT(b+'.rt'), TX(b+'.memo')];
+    })};
+}
+function judgeBlock(p, total){
+  return {type:'kv', rows:[
+    ['評価',[CALC(p+'score')]],
+    ['総合判定',[C(p+'.judge',['救助成立','一部課題あり・救助成立','救助不成立'])]],
+  ], inline:true};
+}
+function posBlock(p){
+  return {type:'kv', title:'位置情報の確認', rows:[
+    ['GeoServer 上の表示',[C(p+'.pos.disp',['表示あり','表示なし'])]],
+    ['SOS 地点とのずれ',[C(p+'.pos.gap',['大きなずれなし','ずれあり']), S('（'), TX(p+'.pos.dir','方向'), S('方向に'), N(p+'.pos.m','m'), S('m 程度）')]],
+  ]};
+}
+function durBlock(p, pairs){
+  return {type:'table', title:'主要 4 区間の所要時間（再送時は初回送信から最終受信まで）', head:[0], cols:['区間','開始時刻','終了時刻','所要時間'],
+    note:'点線の時刻は上の表から自動転記した仮の値。タップして修正できる',
+    rows: pairs.map(([lab,a,b],i)=>[S(lab), T(`${p}.dur${i}.a`, `${p}.${a}`), T(`${p}.dur${i}.b`, `${p}.${b}`), CALC(`${p}dur${i}`)])};
+}
+function q8Block(p, exp){
+  return {type:'table', title:'8 項目回答の受信内容', head:[0], cols:['設問','想定回答（台本）','受信内容'],
+    rows: Q8.map((q,i)=>[S(q), S(exp[i]), C(`${p}.q${i}`,['一致','不一致'])])};
+}
+const S3 = [
+  ['熊目撃情報を送信できた',1,0],['熊目撃情報を仮想事務所で受信できた',0,1],['位置情報を確認できた',0,0],
+  ['別班へ注意喚起を送信できた',1,0],['別班から了解返信を受信できた',1,1],['SOS を発信できた',1,0],
+  ['SOS を仮想事務所で受信できた',0,1],['SOS 位置を確認できた',0,0],['詳細状況の照会を送信できた',1,1],
+  ['8 項目の回答を受信できた（2 通）',1,1],['救援指示を送信できた',1,1],['救援班から了解返信を受信できた',1,1],
+  ['要救助者の発見報告を受信できた',1,1],
+];
+const S6 = [
+  ['SOS を発信できた',1,0],['SOS を仮想事務所で受信できた',0,1],['SOS 位置を確認できた',0,0],
+  ['詳細状況の照会を送信できた',1,1],['8 項目の回答を受信できた（2 通）',1,1],['救援指示を送信できた',1,1],
+  ['救援班から了解返信を受信できた',1,1],['ドローン飛行を依頼できた（GeoServer 操作の引継ぎ）',0,0],
+  ['ドローンを飛行できた',0,0],['ドローン映像を仮想事務所で確認できた',0,0],
+  ['発見・地上搬送困難の報告を受信できた',1,1],['防災ヘリ要請が必要と机上判断できた',0,0],
+];
+function sheet3(){
+  return {id:3, title:'見沢・熊被害シナリオ記録票', ref:'工程 3',
+    meta:[['開始',[T('s3.start')]],['終了',[T('s3.end')]]],
+    blocks:[ scenarioTable('s3',S3), judgeBlock('s3',13), posBlock('s3'),
+      durBlock('s3',[['SOS 発信 → 仮想事務所受信','r6.send','r7.recv'],['SOS 受信 → 救援指示送信','r7.recv','r11.send'],['救援指示送信 → 了解返信受信','r11.send','r12.recv'],['救援指示送信 → 発見報告受信','r11.send','r13.recv']]),
+      q8Block('s3',['はい','はい','はい','不明','いいえ','不明','※案　不明','※案　いいえ']) ]};
+}
+function reviewSheet(id, title, ref, p, drone){
+  const rows = [
+    ['要救助者役（使用感・迷った点）',[TA(p+'.victim')]],
+    ['仮想事務所（受信・返信・位置確認）',[TA(p+'.office')]],
+    ['救援班役',[TA(p+'.rescue')]],
+  ];
+  if (drone) rows.push(['ドローン（小林様）※案',[TA(p+'.drone')]]);
+  rows.push(['×・再送のあった工程',[TA(p+'.ng')]]);
+  rows.push(['問題点',[C(p+'.prob',['問題なし','問題あり']), TA(p+'.probmemo')]]);
+  rows.push(['今後の改善事項',[TA(p+'.improve')]]);
+  return {id, title, ref, meta:[['時刻',[T(p+'.from'),S('〜'),T(p+'.to')]]], blocks:[{type:'kv', rows}]};
+}
+function commSheet(id, title, ref, place, cntKey, p){
+  return {id, title, ref,
+    meta:[],
+    blocks:[
+      {type:'kv', rows:[
+        ['試験場所',[S(place)]],
+        ['実施回数',[C(cntKey, CNT), S('（時間の都合）')]],
+        ['GeoChat 操作者',[TX(p+'.gc')]],
+        ['GeoServer 操作者',[TX(p+'.gs')]],
+      ]},
+      {type:'comm', p:p+'.up', cnt:cntKey, title:'上り試験（GeoChat → GeoServer）', note:'5 分程度を目安に終了。受信が続いている場合は区切りの良いところで終了'},
+      {type:'comm', p:p+'.dn', cnt:cntKey, title:'下り試験（GeoServer → GeoChat）', note:'20 分程度を目安に切り上げ。その時点で届いていない数字は×'},
+    ]};
+}
+function sheet6(){
+  return {id:6, title:'猫沢・滑落事故シナリオ記録票', ref:'工程 10',
+    meta:[['開始',[T('s6.start')]],['終了',[T('s6.end')]]],
+    blocks:[ scenarioTable('s6',S6), judgeBlock('s6',12), posBlock('s6'),
+      durBlock('s6',[['SOS 発信 → 仮想事務所受信','r1.send','r2.recv'],['SOS 受信 → 救援指示送信','r2.recv','r6.send'],['救援指示送信 → 了解返信受信','r6.send','r7.recv'],['救援指示送信 → 発見報告受信','r6.send','r11.recv']]),
+      {type:'kv', title:'ドローン確認', rows:[
+        ['GeoServer 操作の引継ぎ',[S('引継ぎ'),T('s6.dr.hand'),S('／ 復帰'),T('s6.dr.back')]],
+        ['離陸・着陸',[S('離陸'),T('s6.dr.off'),S('／ 着陸'),T('s6.dr.on')]],
+        ['映像での確認',[S('位置関係'),OKNG('s6.dr.v1'),S('周辺地形'),OKNG('s6.dr.v2'),S('進入経路'),OKNG('s6.dr.v3')]],
+        ['防災ヘリ要請判断',[C('s6.dr.heli',['必要','不要']), S('（机上判断。実際の要請・運航は行わない）')]],
+      ]},
+      q8Block('s6',['はい','※案　はい','※案　いいえ','※案　はい','いいえ','※案　不明','※案　はい','※案　いいえ']) ]};
+}
+function sheet9(){
+  const sum = (lab,id)=>[S(lab),CALC(id+'m'),CALC(id+'n'),TX(`s9.sum.${id}`)];
+  return {id:9, title:'全体振り返り・総括記録', ref:'工程 13、工程 14',
+    blocks:[
+      {type:'table', title:'速報集計（工程 14 で読み上げ）', head:[0], cols:['項目','見沢','猫沢','備考'],
+        note:'各記録票の入力内容から自動集計',
+        rows:[sum('シナリオ評価','sc'),sum('上り通信試験','up'),sum('下り通信試験','dn'),sum('再送が発生した工程数','rt'),sum('×となった工程数','ng')]},
+      {type:'kv', rows:[['総合判定',[C('s9.judge',['救助成立','一部課題あり・救助成立','救助不成立'])]]],
+        note:'総合判定は単純な点数ではなく、要救助者の存在とおおよその位置を把握し、救助行動につなげられたかを重視する（計画書 v1.1「10.」）'},
+      {type:'kv', title:'全体振り返り・総括での意見', rows:[
+        ['全体の問題点・改善事項',[TA('s9.op.all')]],
+        ['実証協力者の意見・使用感',[TA('s9.op.coop')]],
+        ['総務省様',[TA('s9.op.soumu')]],
+        ['デロイト トーマツ様',[TA('s9.op.dt')]],
+        ['昭和村様',[TA('s9.op.showa')]],
+        ['KCCS 様',[TA('s9.op.kccs')]],
+      ]},
+      {type:'kv', title:'親機設置状況の視察', rows:[
+        ['場所・時刻',[S('場所'),TX('s9.base.place'),T('s9.base.from'),S('〜'),T('s9.base.to')]],
+        ['同行者',[TX('s9.base.with')]],
+        ['メモ',[TA('s9.base.memo')]],
+      ]},
+    ]};
+}
+function sheet10(){
+  return {id:10, title:'中断・イレギュラー記録', ref:'全工程共通',
+    blocks:[{type:'irr', note:'天候悪化、実際の野生動物の出没、体調不良、機器トラブル、操作ミス、工程変更（前倒し・通信試験の回数変更等）を記録する'}]};
+}
+const SHEETS = [
+  sheet1(), sheet2(), sheet3(),
+  reviewSheet(4,'見沢・簡易振り返り記録','工程 4','s4',false),
+  commSheet(5,'見沢・通信試験記録票','工程 5','見沢シナリオの SOS 発信地点','cnt.miza','s5'),
+  sheet6(),
+  reviewSheet(7,'猫沢・簡易振り返り記録','工程 11','s7',true),
+  commSheet(8,'猫沢・通信試験記録票','工程 12','猫沢シナリオの SOS 発信地点','cnt.neko','s8'),
+  sheet9(), sheet10(),
+];
+
+/* =========================================================
+   自動計算
+   ========================================================= */
+function cntOf(key){ return val(key)==='各10回' ? 10 : 20; }
+function okCount(p,n){ let c=0; for(let i=1;i<=n;i++) if(val(`${p}.r${i}.res`)==='○') c++; return c; }
+function commStat(p,cntKey){ const n=cntOf(cntKey); let s=0, any=false; for(let i=1;i<=n;i++){ const v=val(`${p}.${i}`); if(v) any=true; if(v==='○') s++; } return {n,s,any,rate:Math.round(s/n*100)}; }
+function rtCount(p,n){ let c=0; for(let i=1;i<=n;i++) if(Number(val(`${p}.r${i}.rt`)||0)>0) c++; return c; }
+function ngCount(p,n){ let c=0; for(let i=1;i<=n;i++) if(val(`${p}.r${i}.res`)==='×') c++; return c; }
+function durCalc(p,i){ const sh=SHEETS.find(s=>'s'+s.id===p); const blk=sh.blocks.find(b=>b.title&&b.title.startsWith('主要')); const r=blk.rows[i]; const m=mins(timeVal(r[1]),timeVal(r[2])); return m===''?'— 分':m+' 分'; }
+const CALCS = {
+  s3score: ()=>`${okCount('s3',13)} ／ 13 項目`,
+  s6score: ()=>`${okCount('s6',12)} ／ 12 項目`,
+  scm: ()=>`${okCount('s3',13)} ／ 13`, scn: ()=>`${okCount('s6',12)} ／ 12`,
+  upm: ()=>{const c=commStat('s5.up','cnt.miza');return `${c.s} ／ ${c.n}`;}, upn: ()=>{const c=commStat('s8.up','cnt.neko');return `${c.s} ／ ${c.n}`;},
+  dnm: ()=>{const c=commStat('s5.dn','cnt.miza');return `${c.s} ／ ${c.n}`;}, dnn: ()=>{const c=commStat('s8.dn','cnt.neko');return `${c.s} ／ ${c.n}`;},
+  rtm: ()=>String(rtCount('s3',13)), rtn: ()=>String(rtCount('s6',12)),
+  ngm: ()=>String(ngCount('s3',13)), ngn: ()=>String(ngCount('s6',12)),
+};
+for (const p of ['s3','s6']) for (let i=0;i<4;i++) CALCS[`${p}dur${i}`]=()=>durCalc(p,i);
+for (const p of ['s5.up','s5.dn','s8.up','s8.dn']) {
+  const ck = p.startsWith('s5')?'cnt.miza':'cnt.neko';
+  CALCS[p+'.stat'] = ()=>{ const c=commStat(p,ck); return `成功 ${c.s} ／ ${c.n}　成功率 ${c.rate}%`; };
+}
+
+/* =========================================================
+   入力項目の走査（進捗・CSV で共用）
+   ========================================================= */
+function cellsOf(cell){ return Array.isArray(cell)?cell:[cell]; }
+function walk(sheet, fn){
+  (sheet.meta||[]).forEach(([lab,cells])=>cells.forEach(c=>fn(c,'ヘッダー',lab,'')));
+  sheet.blocks.forEach(b=>{
+    const sec = b.title || '';
+    if (b.type==='table') b.rows.forEach(r=>{ const rl=b.head.map(i=>r[i].v).join(' '); r.forEach((cell,ci)=>cellsOf(cell).forEach(c=>fn(c,sec,rl,b.cols[ci]))); });
+    else if (b.type==='kv') b.rows.forEach(([lab,cells])=>cells.forEach(c=>fn(c,sec,lab,'')));
+    else if (b.type==='comm'){ const n=cntOf(b.cnt); for(let i=1;i<=20;i++){ if(i>n) continue; fn(C(`${b.p}.${i}`,['○','×'],'ox'),sec,'数字 '+i,'結果'); fn(TX(`${b.p}.${i}m`),sec,'数字 '+i,'備考'); }
+      fn(T(b.p+'.st'),sec,'開始・終了時刻','開始'); fn(T(b.p+'.en'),sec,'開始・終了時刻','終了'); fn(CALC(b.p+'.stat'),sec,'成功数・成功率',''); fn(C(b.p+'.why',['全数受信','目安時間経過により終了']),sec,'終了理由',''); }
+    else if (b.type==='irr'){ irrRows().forEach((r,i)=>{ ['time','step','what','act','who'].forEach((f,j)=>fn(f==='time'?T(`s10.${r}.time`):TX(`s10.${r}.${f}`),'イレギュラー',`#${i+1}`,['時刻','工程','内容','対応・判断','判断者'][j])); }); }
+  });
+}
+function progress(sheet){
+  let tot=0, done=0; const seen=new Set();
+  walk(sheet,c=>{ if(!c.k||seen.has(c.k)) return; if(c.k.startsWith('cnt.')&&sheet.id!==5&&sheet.id!==8) return; seen.add(c.k); tot++; if(val(c.k)) done++; });
+  if (sheet.id===10) return {tot:1, done: irrRows().some(r=>val(`s10.${r}.what`)||val(`s10.${r}.time`))?1:0};
+  return {tot, done};
+}
+function irrRows(){ if(!Array.isArray(D['s10.rows'])) D['s10.rows']=['a1','a2','a3']; return D['s10.rows']; }
+
+/* =========================================================
+   画面描画（スマホ入力 UI）
+   ========================================================= */
+function inp(c){
+  switch(c.t){
+    case 's': return c.v ? `<span class="st">${esc(c.v)}</span>` : '';
+    case 'dash': case 'blank': return '';
+    case 'time': return `<span class="tm"><input type="time" data-k="${c.k}"${c.fb?` data-fb="${c.fb}"`:''}><button class="now" data-now="${c.k}">今</button><button class="clr" data-clr="${c.k}">消</button></span>`;
+    case 'c': return `<span class="chips ${c.cls||''}" data-k="${c.k}">${c.o.map(o=>`<button type="button" data-v="${esc(o)}" aria-pressed="false">${esc(o)}${c.suf?'':''}</button>`).join('')}</span>${c.suf?`<span class="st">${c.suf}</span>`:''}`;
+    case 'tx': return `<input class="tx" data-k="${c.k}" placeholder="${esc(c.ph||'')}" autocomplete="off">`;
+    case 'num': return `<input class="num" data-k="${c.k}" inputmode="decimal" placeholder="${esc(c.ph||'')}">`;
+    case 'ta': return `<textarea data-k="${c.k}"></textarea>`;
+    case 'calc': return `<span class="calc" data-calc="${c.id}"></span>`;
+  }
+  return '';
+}
+function isEmptyCell(cell){ return cellsOf(cell).every(c=>c.t==='dash'||c.t==='blank'||(c.t==='s'&&!c.v)); }
+function renderBlock(b){
+  let h = b.title ? `<h2>${esc(b.title)}</h2>` : '';
+  if (b.note) h += `<div class="note">${esc(b.note)}</div>`;
+  if (b.type==='table'){
+    b.rows.forEach(r=>{
+      const head=b.head.map(i=>r[i].v);
+      const resKey = cellsOf(r[b.cols.indexOf('結果（○ or ×）')]||[]).find(c=>c&&c.k)?.k;
+      h += `<div class="card"><div class="ch">${b.head.length>1?`<span class="no">${esc(head[0])}</span><span>${esc(head[1])}</span>`:`<span>${esc(head[0])}</span>`}${resKey?`<span class="done" data-res="${resKey}"></span>`:''}</div>`;
+      r.forEach((cell,ci)=>{ if(b.head.includes(ci)||isEmptyCell(cell)) return;
+        h += `<div class="f"><label>${esc(b.cols[ci])}</label>${cellsOf(cell).map(inp).join('')}</div>`; });
+      h += `</div>`;
+    });
+    if (b.foot) h += `<div class="note">${esc(b.foot)}</div>`;
+  } else if (b.type==='kv'){
+    h += `<div class="card">` + b.rows.map(([lab,cells])=>`<div class="f"><label>${esc(lab)}</label>${cells.map(inp).join('')}</div>`).join('') + `</div>`;
+  } else if (b.type==='comm'){
+    h += `<div class="comm">`;
+    for (let i=1;i<=20;i++) h += `<div class="crow" data-cn="${i}" data-cnt="${b.cnt}"><span class="n">${i}</span>${inp(C(`${b.p}.${i}`,['○','×'],'ox'))}<input class="tx" data-k="${b.p}.${i}m" placeholder="備考"></div>`;
+    h += `</div><div class="card">
+      <div class="f"><label>開始</label>${inp(T(b.p+'.st'))}</div>
+      <div class="f"><label>終了</label>${inp(T(b.p+'.en'))}</div>
+      <div class="f"><label>成功数・率</label>${inp(CALC(b.p+'.stat'))}</div>
+      <div class="f"><label>終了理由</label>${inp(C(b.p+'.why',['全数受信','目安時間経過により終了']))}</div></div>`;
+  } else if (b.type==='irr'){
+    h += `<div class="irr">` + irrRows().map((r,i)=>`<div class="card"><div class="ch"><span class="no">${i+1}</span></div>
+      <div class="f"><label>時刻</label>${inp(T(`s10.${r}.time`))}</div>
+      <div class="f"><label>工程</label>${inp(TX(`s10.${r}.step`,'例：工程5'))}</div>
+      <div class="f"><label>内容</label>${inp(TA(`s10.${r}.what`))}</div>
+      <div class="f"><label>対応・判断</label>${inp(TA(`s10.${r}.act`))}</div>
+      <div class="f"><label>判断者</label>${inp(TX(`s10.${r}.who`))}</div>
+      <button class="del" data-irrdel="${r}">削除</button></div>`).join('') + `</div>
+      <div class="btns"><button class="btn wide" data-irradd="1">＋ 記録を追加</button></div>`;
+  }
+  return h;
+}
+function recorderField(){ return `<div class="card"><div class="f"><label>実施日</label><span class="val">2026年11月11日</span></div><div class="f"><label>記録者</label>${inp(TX('recorder','氏名（全票共通）'))}</div></div>`; }
+function renderSheet(id){
+  const sh = SHEETS.find(s=>s.id===id);
+  let h = `<header class="top"><button class="back" data-go="">一覧</button><h1>記録票 ${id}<br><span style="font-weight:400;font-size:13px">${esc(sh.title)}</span></h1><span id="saved"></span></header>`;
+  h += recorderField();
+  if (sh.meta && sh.meta.length) h += `<div class="card">` + sh.meta.map(([lab,cells])=>`<div class="f"><label>${esc(lab)}</label>${cells.map(inp).join('')}</div>`).join('') + `</div>`;
+  sh.blocks.forEach(b=>h+=renderBlock(b));
+  h += `<div class="btns"><button class="btn sub wide" data-print="${id}">この記録票だけ PDF 出力</button></div>`;
+  document.getElementById('app').innerHTML = h;
+  const pg = document.getElementById('pager'); pg.hidden=false;
+  pg.innerHTML = `<button data-go="${id>1?'s'+(id-1):''}" ${id<=1?'':''}>← ${id>1?'票'+(id-1):'一覧'}</button><button class="mid" data-go="">一覧</button><button data-go="${id<10?'s'+(id+1):''}">${id<10?'票'+(id+1)+' →':'一覧'}</button>`;
+  refresh();
+}
+const GUIDE = [
+  ['結果','○＝確認・実施できた、×＝確認・実施できなかった（計画書 v1.1「10.」）'],
+  ['再送','同一内容の再送回数（0〜3 回）。3 回再送しても届かない場合は×とし、備考に「口頭補足」と記入'],
+  ['時刻','送信者の「送信しました」、受信側の「受信しました」の声を合図に、時:分で記入（「今」ボタンで現在時刻を入力）'],
+  ['所要時間','再送が発生した場合は、初回送信から最終受信までを計測する（計画書 v1.1「10.」）'],
+  ['通信試験','数字ごとに○（成功）・×（失敗）のみを記入。数字ごとの再送は行わない。各 10 回に変更した場合は 11〜20 が自動で無効になる'],
+  ['位置情報','GeoServer 上の表示有無と、実際の SOS 地点から大きくずれていないかを目視で確認する（計画書 v1.1「12.」）'],
+];
+function renderHome(){
+  let h = `<header class="top"><h1>救助訓練 記録票</h1><span id="saved"></span></header>
+  <div class="cover"><div class="pj">【PJ Reach】福島県昭和村実証</div><div class="ttl">救助訓練　記録票</div>
+  <div class="meta">実施日：2026年11月11日<br>実施場所：福島県昭和村（見沢エリア／見沢エリア村民別荘地／猫沢エリア）<br>株式会社フォレストシー　IoT 通信事業部</div></div>`;
+  h += recorderField();
+  h += `<h2>記録票一覧</h2><div class="list">` + SHEETS.map(s=>{ const p=progress(s); const pct=p.tot?Math.round(p.done/p.tot*100):0;
+    return `<a href="#s${s.id}"><span class="no">${s.id}</span><span class="t">${esc(s.title)}<small>${esc(s.ref)}${s.id===10?'':`　${p.done}/${p.tot}`}</small></span><span class="bar"><i style="width:${s.id===10?(p.done?100:0):pct}%"></i></span></a>`; }).join('') + `</div>`;
+  h += `<details><summary>記入要領</summary><table>${GUIDE.map(([a,b])=>`<tr><td>${a}</td><td>${esc(b)}</td></tr>`).join('')}</table></details>`;
+  h += `<h2>出力</h2><div class="btns">
+    <button class="btn wide" data-print="all">全記録票を PDF 出力（印刷 → PDF）</button>
+    <button class="btn sub" data-export="csv">CSV 書き出し</button>
+    <button class="btn sub" data-export="html">印刷用ファイル保存</button>
+    <button class="btn sub" data-export="json">バックアップ保存</button>
+    <button class="btn sub" data-import="1">バックアップ読込</button>
+    <button class="btn warn wide" data-reset="1">全データを消去</button></div>
+    <div class="note">入力内容はこの端末に自動保存されます（圏外でも OK）。「PDF 出力」で印刷画面が開かないときは「印刷用ファイル保存」→ ファイルアプリで開いて共有 → プリント → ピンチアウトで PDF にできます。</div>`;
+  document.getElementById('app').innerHTML = h;
+  document.getElementById('pager').hidden = true;
+  refresh();
+}
+
+/* 画面の値を D に合わせて更新 */
+function refresh(){
+  document.querySelectorAll('[data-k]').forEach(el=>{
+    const k=el.dataset.k;
+    if (el.classList.contains('chips')) { el.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed', String(val(k)===b.dataset.v))); return; }
+    if (el===document.activeElement) return;
+    if (el.type==='time' && el.dataset.fb) { const own=val(k); const v=own||val(el.dataset.fb); el.value=v; el.classList.toggle('auto', !own && !!v); return; }
+    el.value = val(k);
+  });
+  document.querySelectorAll('[data-calc]').forEach(el=>{ const f=CALCS[el.dataset.calc]; el.textContent=f?f():''; });
+  document.querySelectorAll('[data-res]').forEach(el=>{ const v=val(el.dataset.res); el.textContent=v; el.style.color=v==='×'?'var(--ng)':'var(--ok)'; });
+  document.querySelectorAll('.crow').forEach(el=>el.classList.toggle('dis', Number(el.dataset.cn)>cntOf(el.dataset.cnt)));
+  const s=document.getElementById('saved'); if(s&&D._updated) s.textContent='保存済 '+hm(new Date(D._updated));
+}
+
+/* =========================================================
+   イベント
+   ========================================================= */
+document.addEventListener('click', e=>{
+  const t = e.target.closest('button,a'); if(!t) return;
+  if (t.matches('.chips button')) { const k=t.parentElement.dataset.k; D[k] = val(k)===t.dataset.v ? '' : t.dataset.v; if(!D[k]) delete D[k]; persist(); refresh(); return; }
+  if (t.dataset.now) { D[t.dataset.now]=hm(new Date()); persist(); refresh(); return; }
+  if (t.dataset.clr) { delete D[t.dataset.clr]; persist(); refresh(); return; }
+  if ('go' in t.dataset) { location.hash = t.dataset.go ? '#'+t.dataset.go : '#'; if(!t.dataset.go) route(); return; }
+  if (t.dataset.print) { doPrint(t.dataset.print); return; }
+  if (t.dataset.export) { doExport(t.dataset.export); return; }
+  if (t.dataset.import) { document.getElementById('importFile').click(); return; }
+  if (t.dataset.reset) { if (confirm('全ての入力データを消去します。元に戻せません。よろしいですか？') && confirm('本当に消去しますか？（バックアップは保存済みですか）')) { D={}; persist(); renderHome(); toast('消去しました'); } return; }
+  if (t.dataset.irradd) { irrRows().push('a'+Date.now().toString(36)); persist(); renderSheet(10); window.scrollTo(0,document.body.scrollHeight); return; }
+  if (t.dataset.irrdel) { if(!confirm('この記録を削除しますか？')) return; const r=t.dataset.irrdel; D['s10.rows']=irrRows().filter(x=>x!==r); Object.keys(D).forEach(k=>{ if(k.startsWith(`s10.${r}.`)) delete D[k]; }); persist(); renderSheet(10); return; }
+});
+document.addEventListener('input', e=>{
+  const el=e.target; if(!el.dataset||!el.dataset.k) return;
+  if (el.value==='') delete D[el.dataset.k]; else D[el.dataset.k]=el.value;
+  if (el.type==='time' && el.dataset.fb) el.classList.remove('auto');
+  persist();
+  document.querySelectorAll('[data-calc]').forEach(c=>{ const f=CALCS[c.dataset.calc]; c.textContent=f?f():''; });
+  if (el.type==='time') refresh();
+});
+document.addEventListener('change', e=>{ if(e.target.type==='time') refresh(); });
+document.getElementById('importFile').addEventListener('change', async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  try { const obj=JSON.parse(await f.text()); if(typeof obj!=='object'||!obj) throw 0;
+    if(!confirm('バックアップを読み込むと現在の入力内容は上書きされます。よろしいですか？')) return;
+    D=obj; persist(); route(); toast('読み込みました');
+  } catch(err){ toast('読み込めませんでした（ファイル形式を確認）'); }
+  e.target.value='';
+});
+function route(){ const m=location.hash.match(/^#s(\d+)$/); if(m&&SHEETS.some(s=>s.id===Number(m[1]))){ renderSheet(Number(m[1])); window.scrollTo(0,0);} else renderHome(); }
+window.addEventListener('hashchange', route);
+
+/* =========================================================
+   印刷（紙と同じレイアウト）
+   ========================================================= */
+function pc(c){
+  switch(c.t){
+    case 's': return esc(c.v);
+    case 'dash': return '—';
+    case 'blank': return '';
+    case 'time': { const v=timeVal(c); return v?`<span class="v">${v}</span>`:'<span class="sm">　：　</span>'; }
+    case 'c': { const v=val(c.k);
+      if (c.cls==='ox') return v?`<span class="${v==='○'?'ok':'ng'}">${v}</span>`:'';
+      if (c.cls==='rt') return v?`<span class="v">${v}</span>回`:'__回';
+      return c.o.map(o=>`${o===v?'<span class="v">☑':'☐'}${esc(o)}${o===v?'</span>':''}`).join('　'); }
+    case 'tx': case 'num': { const v=val(c.k); return v?`<span class="v">${esc(v)}</span>`:(c.t==='num'?'____':''); }
+    case 'ta': { const v=val(c.k); return v?`<span class="v">${esc(v)}</span>`:''; }
+    case 'calc': { const f=CALCS[c.id]; return `<span class="v">${f?esc(f()):''}</span>`; }
+  }
+  return '';
+}
+const pcs = cell => cellsOf(cell).map(pc).filter(x=>x!=='').join(' ');
+function pBlock(b){
+  let h = b.title?`<h3>${esc(b.title)}</h3>`:'';
+  if (b.type==='table'){
+    h += `<table><tr>${b.cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr>` + b.rows.map(r=>`<tr>${r.map((cell,ci)=>{ const center = !(ci===1&&b.head.length>1) && !(ci===0&&b.head.length===1) && !cellsOf(cell).some(c=>c.t==='tx'&&ci===r.length-1);
+      return `<td class="${center?'c':''}">${pcs(cell)}</td>`;}).join('')}</tr>`).join('') + `</table>`;
+    if (b.foot) h += `<div class="sm">${esc(b.foot)}</div>`;
+  } else if (b.type==='kv'){
+    if (b.inline) h += `<div style="margin:6px 0">` + b.rows.map(([l,cells])=>`<b>${esc(l)}：</b>${cells.map(pc).join(' ')}`).join('　　') + `</div>`;
+    else h += `<table>` + b.rows.map(([l,cells])=>{ const ta = cells.some(c=>c.t==='ta'); return `<tr><td class="k">${esc(l)}</td><td class="${ta?'ta':''}">${cells.map(c=>c.t==='ta'&&cells.length>1?'<br>'+pc(c):pc(c)).join(' ')}</td></tr>`; }).join('') + `</table>`;
+    if (b.note) h += `<div class="sm">${esc(b.note)}</div>`;
+  } else if (b.type==='comm'){
+    const n=cntOf(b.cnt);
+    h += `<div class="sm">${esc(b.note)}</div><table><tr><th>数字</th><th>結果（○ or ×）</th><th>備考</th><th>数字</th><th>結果（○ or ×）</th><th>備考</th></tr>`;
+    for (let i=1;i<=10;i++){ const j=i+10, dj=j>n?' slash':'';
+      h += `<tr><td class="c">${i}</td><td class="c">${pc(C(`${b.p}.${i}`,['○','×'],'ox'))}</td><td>${pc(TX(`${b.p}.${i}m`))}</td><td class="c${dj}">${j}</td><td class="c${dj}">${j>n?'':pc(C(`${b.p}.${j}`,['○','×'],'ox'))}</td><td class="${dj}">${j>n?'':pc(TX(`${b.p}.${j}m`))}</td></tr>`; }
+    h += `<tr><td class="k" colspan="2">開始・終了時刻</td><td colspan="4">開始 ${pc(T(b.p+'.st'))}　／　終了 ${pc(T(b.p+'.en'))}</td></tr>
+      <tr><td class="k" colspan="2">成功数・成功率</td><td colspan="4">${pc(CALC(b.p+'.stat'))}</td></tr>
+      <tr><td class="k" colspan="2">終了理由</td><td colspan="4">${pc(C(b.p+'.why',['全数受信','目安時間経過により終了']))}</td></tr></table>`;
+  } else if (b.type==='irr'){
+    const rows=irrRows().filter(r=>['time','step','what','act','who'].some(f=>val(`s10.${r}.${f}`)));
+    h += `<div class="sm">${esc(b.note)}</div><table><tr><th style="width:11%">時刻</th><th style="width:13%">工程</th><th>内容</th><th>対応・判断</th><th style="width:16%">判断者</th></tr>`;
+    rows.forEach(r=>{ h += `<tr><td class="c">${pc(T(`s10.${r}.time`))}</td><td>${pc(TX(`s10.${r}.step`))}</td><td style="white-space:pre-wrap">${pc(TA(`s10.${r}.what`))}</td><td style="white-space:pre-wrap">${pc(TA(`s10.${r}.act`))}</td><td>${pc(TX(`s10.${r}.who`))}</td></tr>`; });
+    for (let i=rows.length;i<Math.max(10,rows.length);i++) h += `<tr><td class="c sm" style="height:30pt">：</td><td></td><td></td><td></td><td></td></tr>`;
+    h += `</table>`;
+  }
+  return h;
+}
+function pSheet(sh){
+  const rec = val('recorder') ? `<span class="v">${esc(val('recorder'))}</span>` : '________________';
+  const meta = (sh.meta||[]).map(([l,cells])=>`<span>${esc(l)} ${cells.map(pc).join(' ')}</span>`).join('');
+  return `<section class="page"><h1>記録票 ${sh.id}　${esc(sh.title)}</h1><div class="mline"><span>実施日：2026 年 11 月 11 日</span><span>記録者：${rec}</span>${meta}</div>${sh.blocks.map(pBlock).join('')}</section>`;
+}
+function pCover(){
+  return `<section class="page"><div class="cv"><div class="pj">【PJ Reach】福島県昭和村実証</div><div class="t">救助訓練　記録票</div>
+    <div>実施日：2026 年 11 月 11 日</div><div>実施場所：福島県昭和村（見沢エリア／見沢エリア村民別荘地／猫沢エリア）</div>
+    <div>株式会社フォレストシー　IoT 通信事業部　　作成日：2026 年 11 月 5 日</div><div>記録者：${val('recorder')?`<span class="v">${esc(val('recorder'))}</span>`:'________________'}</div></div>
+    <h3>記録票一覧</h3><table><tr><th style="width:8%">No.</th><th>記録票</th><th style="width:36%">対応する台本の工程</th></tr>${SHEETS.map(s=>`<tr><td class="c">${s.id}</td><td>${esc(s.title)}</td><td>${esc(s.ref)}</td></tr>`).join('')}</table>
+    <h3>記入要領</h3><table><tr><th style="width:18%">項目</th><th>記入方法</th></tr>${GUIDE.map(([a,b])=>`<tr><td>${a}</td><td>${esc(b)}</td></tr>`).join('')}</table>
+    <div class="sm" style="margin-top:6px">根拠資料：【Reach】福島県昭和村実証_救助訓練実施計画書_v1.1_20261022（計画書 v1.1）、昭和村実証_救助訓練記録票_20261013、昭和村実証_救助訓練_当日進行台本_20261105_v3</div>
+    <div class="sm">出力日時：${new Date().toLocaleString('ja-JP')}</div></section>`;
+}
+function buildPrint(which){
+  if (which==='all') return pCover() + SHEETS.map(pSheet).join('');
+  return pSheet(SHEETS.find(s=>s.id===Number(which)));
+}
+function doPrint(which){
+  document.getElementById('print').innerHTML = buildPrint(which);
+  setTimeout(()=>{ try { window.print(); } catch(e) { toast('印刷画面を開けませんでした。「印刷用ファイル保存」を使ってください'); } }, 50);
+}
+
+/* =========================================================
+   書き出し
+   ========================================================= */
+function stamp(){ const d=new Date(); return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}_${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}`; }
+function plain(c){
+  switch(c.t){
+    case 'time': return timeVal(c);
+    case 'c': case 'tx': case 'num': case 'ta': return val(c.k);
+    case 'calc': { const f=CALCS[c.id]; return f?f():''; }
+  }
+  return null;
+}
+function buildCSV(){
+  const out=[['記録票No','記録票','区分','行','列','値']];
+  out.push(['0','共通','','記録者','',val('recorder')]);
+  SHEETS.forEach(sh=>walk(sh,(c,sec,row,col)=>{ const v=plain(c); if(v===null) return; out.push([sh.id,sh.title,sec,row,col,v]); }));
+  return '﻿' + out.map(r=>r.map(x=>{ const s=String(x??''); return /[",\n\r]/.test(s)?`"${s.replace(/"/g,'""')}"`:s; }).join(',')).join('\r\n');
+}
+function buildPrintHTML(){
+  const css = [...document.querySelectorAll('style')].map(s=>s.textContent).join('\n');
+  return `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>救助訓練記録票_${stamp()}</title><style>${css}\nbody{background:#fff;padding:12px}#print{display:block}</style></head><body><div id="print" class="pp">${buildPrint('all')}</div></body></html>`;
+}
+async function shareOrDownload(name, text, mime){
+  const blob = new Blob([text], {type:mime});
+  try {
+    const file = new File([blob], name, {type:mime});
+    if (navigator.canShare && navigator.canShare({files:[file]})) { await navigator.share({files:[file], title:name}); return; }
+  } catch(e) { if (e && e.name==='AbortError') return; }
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+function doExport(kind){
+  if (kind==='csv') shareOrDownload(`救助訓練記録票_${stamp()}.csv`, buildCSV(), 'text/csv');
+  if (kind==='json') shareOrDownload(`救助訓練記録票_backup_${stamp()}.json`, JSON.stringify(D,null,1), 'application/json');
+  if (kind==='html') shareOrDownload(`救助訓練記録票_印刷用_${stamp()}.html`, buildPrintHTML(), 'text/html');
+}
+
+/* =========================================================
+   起動・オフライン対応
+   ========================================================= */
+route();
+if ('serviceWorker' in navigator && location.protocol==='https:') {
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
